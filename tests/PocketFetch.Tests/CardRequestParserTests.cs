@@ -81,23 +81,26 @@ public class CardRequestParserTests
     }
 
     [Theory]
-    [InlineData("{{sets}}")]
-    [InlineData("{{ Sets }}")]
-    public void Sets_asks_for_the_list_of_sets(string message)
+    [InlineData("{{sets}}", CardRequestKind.SetList)]
+    [InlineData("{{ Sets }}", CardRequestKind.SetList)]
+    [InlineData("{{help}}", CardRequestKind.Help)]
+    [InlineData("{{HELP}}", CardRequestKind.Help)]
+    public void Command_words_ask_for_lists_instead_of_cards(string message, CardRequestKind expectedKind)
     {
         var request = Assert.Single(CardRequestParser.Parse(message));
 
-        Assert.Equal(CardRequestKind.SetList, request.Kind);
+        Assert.Equal(expectedKind, request.Kind);
     }
 
     [Theory]
     [InlineData("{{#sets}}")]
     [InlineData("{{sets|A1}}")]
-    public void Sets_with_a_prefix_or_set_is_a_card_lookup(string message)
+    [InlineData("{{!help}}")]
+    public void Command_words_with_a_prefix_or_set_are_card_lookups(string message)
     {
         var request = Assert.Single(CardRequestParser.Parse(message));
 
-        Assert.NotEqual(CardRequestKind.SetList, request.Kind);
+        Assert.True(request.Kind is not (CardRequestKind.SetList or CardRequestKind.Help));
     }
 
     [Fact]

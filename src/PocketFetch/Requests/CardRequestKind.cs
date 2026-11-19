@@ -7,4 +7,5 @@ public enum CardRequestKind
     HowToGet,
     Prints,
     SetList,
+    Help,
 }

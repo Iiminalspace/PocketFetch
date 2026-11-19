@@ -4,9 +4,15 @@ namespace PocketFetch.Requests;
 
 public static partial class CardRequestParser
 {
-    // {{name}}  {{!name}}  {{?name}}  {{#name}}  {{name|set}}  {{name|set|number}}  {{sets}}
+    // {{name}}  {{!name}}  {{?name}}  {{#name}}  {{name|set}}  {{name|set|number}}  {{sets}}  {{help}}
     [GeneratedRegex(@"\{\{(?<prefix>[!?#]?)(?<name>[^{}|]+)(\|(?<set>[^{}|]*))?(\|(?<number>[^{}|]*))?\}\}")]
     private static partial Regex CardRequestPattern();
+
+    private static readonly Dictionary<string, CardRequestKind> Commands = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["sets"] = CardRequestKind.SetList,
+        ["help"] = CardRequestKind.Help,
+    };
 
     public static IReadOnlyList<CardRequest> Parse(string message) =>
         CardRequestPattern()
@@ -22,10 +28,8 @@ public static partial class CardRequestParser
         var set = match.Groups["set"].Value.Trim();
         var hasNumber = int.TryParse(match.Groups["number"].Value, out var number);
 
-        var isSetList = match.Groups["prefix"].Value.Length == 0
-            && !match.Groups["set"].Success
-            && name.Equals("sets", StringComparison.OrdinalIgnoreCase);
-        if (isSetList) return new CardRequest(CardRequestKind.SetList, name);
+        var isPlainName = match.Groups["prefix"].Value.Length == 0 && !match.Groups["set"].Success;
+        if (isPlainName && Commands.TryGetValue(name, out var command)) return new CardRequest(command, name);
 
         return new CardRequest(
             Kind: ToKind(match.Groups["prefix"].Value),

@@ -186,6 +186,18 @@ public class CardReplyBuilderTests
         Assert.Equal(2, lines.Length);
     }
 
+    [Fact]
+    public void Help_lists_every_command_in_a_code_block()
+    {
+        var help = _replyBuilder.BuildHelp().Description;
+
+        Assert.StartsWith("```", help);
+        Assert.Contains("{{Name}} - Card Text", help);
+        Assert.Contains("{{Name|SET|000}} - Specific Version", help);
+        Assert.Contains("{{sets}} - Set List", help);
+        Assert.EndsWith("```", help);
+    }
+
     private static CardReplyBuilder CreateReplyBuilder(string sourceUrl)
     {
         var catalog = new CardCatalog();

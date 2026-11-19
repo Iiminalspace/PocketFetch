@@ -43,6 +43,22 @@ public sealed class CardReplyBuilder(CardCatalog catalog, IOptions<ReplyOptions>
             .Build();
     }
 
+    public Embed BuildHelp() =>
+        new EmbedBuilder()
+            .WithDescription("""
+                ```
+                {{Name}} - Card Text
+                {{!Name}} - Card Image
+                {{Name|SET}} - Specific Set
+                {{Name|SET|000}} - Specific Version
+                {{?Name}} - How to Get
+                {{#Name}} - All Prints
+                {{sets}} - Set List
+                ```
+                """)
+            .WithColor(Color.DarkGrey)
+            .Build();
+
     private Embed BuildText(Card card)
     {
         var text = new StringBuilder();

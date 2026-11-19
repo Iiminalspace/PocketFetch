@@ -18,6 +18,7 @@ Is {{Pikachu ex}} still worth running with {{!Zapdos ex}}?
 | `{{Pikachu ex\|Genetic Apex}}` | The same, using the set's name |
 | `{{Pikachu ex\|A1\|96}}` | One exact print, by set and number |
 | `{{sets}}` | Every set with its code |
+| `{{help}}` | A short list of these commands |
 
 Names and set names forgive case, accents, partial names and small typos (`{{charizrd ex}}` works). A message can ask for up to five cards. Prefixes combine with sets: `{{!Pikachu ex|A1|285}}`.
 
