@@ -55,7 +55,25 @@ public sealed class CatalogRefreshService(
         }
 
         await TrySaveToCacheAsync(json, cancellationToken);
+        await WarnIfNewerDataVersionAsync(cancellationToken);
         return true;
+    }
+
+    private async Task WarnIfNewerDataVersionAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var versions = await pocketDecksClient.CheckNewerDataSourceVersionAsync(cancellationToken);
+            if (versions is null) return;
+
+            logger.LogWarning(
+                "PocketDecks card data v{NewestVersion} is out, but PocketFetch still uses v{VersionInUse}.",
+                versions.Newest, versions.InUse);
+        }
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            logger.LogWarning("Could not check for a newer card data version: {Problem}", exception.Message);
+        }
     }
 
     private void LoadCatalog(string json, string source)
