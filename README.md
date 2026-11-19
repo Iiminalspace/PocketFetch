@@ -22,7 +22,7 @@ Is {{Pikachu ex}} still worth running with {{!Zapdos ex}}?
 
 Names and set names forgive case, accents, partial names and small typos (`{{charizrd ex}}` works). A message can ask for up to five cards. Prefixes combine with sets: `{{!Pikachu ex|A1|285}}`.
 
-## How the code is organized
+## Code Organization
 
 Each folder under `src/PocketFetch` is one area of responsibility:
 
@@ -33,6 +33,7 @@ Each folder under `src/PocketFetch` is one area of responsibility:
 | `CardData/` | Downloads the card list and keeps the catalog fresh |
 | `Replies/` | Turns a card into a Discord embed |
 | `Bot/` | Discord connection and message handling |
+| `Monitoring/` | Log files and the uptime heartbeat |
 
 ## Card data and license
 

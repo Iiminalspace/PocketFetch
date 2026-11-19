@@ -49,8 +49,8 @@ public sealed class CatalogRefreshService(
         // Catching exceptions here prevents the service from stopping if the download fails.
         catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
         {
-            logger.LogError(exception, "Could not download card data; trying again in {RetryDelay}",
-                options.Value.RetryDelay);
+            logger.LogError(exception, "Could not download card data; trying again in {RetryMinutes} minutes",
+                options.Value.RetryDelay.TotalMinutes);
             return false;
         }
 
