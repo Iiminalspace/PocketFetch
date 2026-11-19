@@ -64,18 +64,40 @@ public class CardCatalogTests
     [Fact]
     public void A_set_code_narrows_the_search_to_that_set()
     {
-        var card = _catalog.Find("Pikachu", setCode: "A1a");
+        var card = _catalog.Find("Pikachu", set: "A1a");
 
         Assert.Equal(25, card?.Print.Number);
+    }
+
+    [Theory]
+    [InlineData("Set A1a")]
+    [InlineData("set a1a")]
+    public void A_set_name_works_like_a_set_code(string set)
+    {
+        var card = _catalog.Find("Pikachu", set);
+
+        Assert.Equal("A1a", card?.Print.SetCode);
+    }
+
+    [Fact]
+    public void Sets_are_listed_oldest_first_with_their_card_counts()
+    {
+        Assert.Equal(
+            [
+                new CardSet("A1", "Set A1", GeneticApexRelease, 4),
+                new CardSet("A1a", "Set A1a", MythicalIslandRelease, 1),
+                new CardSet("P-A", "Set P-A", null, 1),
+            ],
+            _catalog.Sets);
     }
 
     [Theory]
     [InlineData("P-A")]
     [InlineData("p-a")]
     [InlineData("PA")]
-    public void Set_codes_can_be_written_any_way(string setCode)
+    public void Set_codes_can_be_written_any_way(string set)
     {
-        var card = _catalog.Find("Pikachu ex", setCode);
+        var card = _catalog.Find("Pikachu ex", set);
 
         Assert.Equal("P-A", card?.Print.SetCode);
     }
@@ -83,7 +105,7 @@ public class CardCatalogTests
     [Fact]
     public void A_set_code_and_number_find_one_exact_print()
     {
-        var card = _catalog.Find("Pikachu ex", setCode: "A1", number: 285);
+        var card = _catalog.Find("Pikachu ex", set: "A1", number: 285);
 
         Assert.Equal(285, card?.Print.Number);
     }
@@ -91,7 +113,7 @@ public class CardCatalogTests
     [Fact]
     public void A_number_belonging_to_another_card_does_not_change_the_card_found()
     {
-        var card = _catalog.Find("Mewtwo ex", setCode: "A1", number: 94);
+        var card = _catalog.Find("Mewtwo ex", set: "A1", number: 94);
 
         Assert.Equal("Mewtwo ex", card?.Name);
     }
@@ -99,7 +121,7 @@ public class CardCatalogTests
     [Fact]
     public void A_number_without_a_set_is_ignored()
     {
-        var card = _catalog.Find("Mewtwo ex", setCode: null, number: 94);
+        var card = _catalog.Find("Mewtwo ex", set: null, number: 94);
 
         Assert.Equal("Mewtwo ex", card?.Name);
     }
@@ -107,9 +129,9 @@ public class CardCatalogTests
     [Theory]
     [InlineData("Black Lotus", null)]
     [InlineData("Pikachu", "ZZ9")]
-    public void Unknown_names_and_sets_find_nothing(string name, string? setCode)
+    public void Unknown_names_and_sets_find_nothing(string name, string? set)
     {
-        Assert.Null(_catalog.Find(name, setCode));
+        Assert.Null(_catalog.Find(name, set));
     }
 
     [Fact]

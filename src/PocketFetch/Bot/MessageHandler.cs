@@ -44,7 +44,9 @@ public sealed class MessageHandler(
 
     private Embed BuildReply(CardRequest request)
     {
-        var card = catalog.Find(request.Name, request.SetCode, request.Number);
+        if (request.Kind == CardRequestKind.SetList) return replyBuilder.BuildSetList();
+
+        var card = catalog.Find(request.Name, request.Set, request.Number);
 
         return card is not null
             ? replyBuilder.Build(request.Kind, card)

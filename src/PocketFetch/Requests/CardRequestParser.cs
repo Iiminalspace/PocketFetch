@@ -4,8 +4,8 @@ namespace PocketFetch.Requests;
 
 public static partial class CardRequestParser
 {
-    // [[name]]  [[!name]]  [[?name]]  [[#name]]  [[name|set]]  [[name|set|number]]
-    [GeneratedRegex(@"\[\[(?<prefix>[!?#]?)(?<name>[^\[\]|]+)(\|(?<set>[^\[\]|]*))?(\|(?<number>[^\[\]|]*))?\]\]")]
+    // {{name}}  {{!name}}  {{?name}}  {{#name}}  {{name|set}}  {{name|set|number}}  {{sets}}
+    [GeneratedRegex(@"\{\{(?<prefix>[!?#]?)(?<name>[^{}|]+)(\|(?<set>[^{}|]*))?(\|(?<number>[^{}|]*))?\}\}")]
     private static partial Regex CardRequestPattern();
 
     public static IReadOnlyList<CardRequest> Parse(string message) =>
@@ -18,13 +18,19 @@ public static partial class CardRequestParser
 
     private static CardRequest ToCardRequest(Match match)
     {
-        var setCode = match.Groups["set"].Value.Trim();
+        var name = match.Groups["name"].Value.Trim();
+        var set = match.Groups["set"].Value.Trim();
         var hasNumber = int.TryParse(match.Groups["number"].Value, out var number);
+
+        var isSetList = match.Groups["prefix"].Value.Length == 0
+            && !match.Groups["set"].Success
+            && name.Equals("sets", StringComparison.OrdinalIgnoreCase);
+        if (isSetList) return new CardRequest(CardRequestKind.SetList, name);
 
         return new CardRequest(
             Kind: ToKind(match.Groups["prefix"].Value),
-            Name: match.Groups["name"].Value.Trim(),
-            SetCode: setCode.Length > 0 ? setCode : null,
+            Name: name,
+            Set: set.Length > 0 ? set : null,
             Number: hasNumber ? number : null);
     }
 

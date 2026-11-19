@@ -51,7 +51,7 @@ public class CardReplyBuilderTests
 
         var reply = _replyBuilder.Build(CardRequestKind.Text, Butterfree);
 
-        Assert.Equal("Butterfree — ʜᴘ120", reply.Title);
+        Assert.Equal($"Butterfree — ʜᴘ120 {grass}", reply.Title);
         Assert.Contains("Stage 2 Pokémon · Grass", reply.Description);
         Assert.Contains("Evolves from Metapod", reply.Description);
         Assert.Contains("**Ability: Powder Heal**", reply.Description);
@@ -59,6 +59,14 @@ public class CardReplyBuilderTests
         Assert.Contains($"{grass}{colorless}{colorless} **Gust** 60", reply.Description);
         Assert.Contains($"-# weakness: {fire} +20 · retreat: {colorless}", reply.Description);
         Assert.Equal("https://example.test/a1/007.png", reply.Thumbnail?.Url);
+    }
+
+    [Fact]
+    public void A_dual_type_title_shows_both_types()
+    {
+        var reply = _replyBuilder.Build(CardRequestKind.Text, Butterfree with { SecondType = "Darkness" });
+
+        Assert.EndsWith("<:Grass:1572366901420753088><:Darkness:1572367173622431755>", reply.Title);
     }
 
     [Fact]
@@ -159,12 +167,23 @@ public class CardReplyBuilderTests
     [Fact]
     public void Not_found_names_what_was_asked_and_offers_suggestions()
     {
-        var request = new CardRequest(CardRequestKind.Text, "Buterfre", SetCode: "A1");
+        var request = new CardRequest(CardRequestKind.Text, "Buterfre", Set: "A1");
 
         var reply = _replyBuilder.BuildNotFound(request, ["Butterfree", "Butterfree ex"]);
 
         Assert.Contains("No card found for \"Buterfre\" in set A1.", reply.Description);
         Assert.Contains("Did you mean **Butterfree**, **Butterfree ex**?", reply.Description);
+    }
+
+    [Fact]
+    public void The_set_list_names_each_set_with_its_code_and_link()
+    {
+        var reply = _replyBuilder.BuildSetList();
+        var lines = reply.Description.Split('\n');
+
+        Assert.Equal("Sets", reply.Title);
+        Assert.Equal("[**A1**](https://pocket.limitlesstcg.com/cards/A1) · Genetic Apex · 1 card", lines[0]);
+        Assert.Equal(2, lines.Length);
     }
 
     private static CardReplyBuilder CreateReplyBuilder(string sourceUrl)

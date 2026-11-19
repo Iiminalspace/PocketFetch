@@ -6,4 +6,5 @@ public enum CardRequestKind
     Image,
     HowToGet,
     Prints,
+    SetList,
 }

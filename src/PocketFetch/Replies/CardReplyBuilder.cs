@@ -20,13 +20,25 @@ public sealed class CardReplyBuilder(CardCatalog catalog, IOptions<ReplyOptions>
 
     public Embed BuildNotFound(CardRequest request, IReadOnlyList<string> suggestedNames)
     {
-        var where = request.SetCode is null ? "" : $" in set {request.SetCode}";
+        var where = request.Set is null ? "" : $" in set {request.Set}";
         var suggestions = suggestedNames.Count == 0
             ? ""
             : $"\nDid you mean {string.Join(", ", suggestedNames.Select(name => $"**{name}**"))}?";
 
         return new EmbedBuilder()
             .WithDescription($"No card found for \"{request.Name}\"{where}.{suggestions}")
+            .WithColor(Color.DarkGrey)
+            .Build();
+    }
+
+    public Embed BuildSetList()
+    {
+        var lines = catalog.Sets.Select(set =>
+            $"[**{set.Code}**](https://pocket.limitlesstcg.com/cards/{set.Code}) · {set.Name} · {set.CardCount:N0} {(set.CardCount == 1 ? "card" : "cards")}");
+
+        return new EmbedBuilder()
+            .WithTitle("Sets")
+            .WithDescription(string.Join('\n', lines))
             .WithColor(Color.DarkGrey)
             .Build();
     }
@@ -67,7 +79,7 @@ public sealed class CardReplyBuilder(CardCatalog catalog, IOptions<ReplyOptions>
         }
 
         return StartEmbed(card)
-            .WithTitle(card.Health is null ? card.Name : $"{card.Name} — ʜᴘ{card.Health}")
+            .WithTitle(DescribeTitle(card))
             .WithDescription(text.ToString())
             .WithThumbnailUrl(card.ImageUrl)
             .WithFooter(DescribeFooter(card))
@@ -112,6 +124,16 @@ public sealed class CardReplyBuilder(CardCatalog catalog, IOptions<ReplyOptions>
         new EmbedBuilder()
             .WithColor(EnergyTypes.ColorOf(card.Subtype))
             .WithUrl(LimitlessPageFor(card.Print));
+
+    private static string DescribeTitle(Card card)
+    {
+        if (card.Health is null) return card.Name;
+
+        var types = EnergyTypes.SymbolOf(card.Subtype)
+            + (card.SecondType is null ? "" : EnergyTypes.SymbolOf(card.SecondType));
+
+        return $"{card.Name} — ʜᴘ{card.Health} {types}";
+    }
 
     private static string DescribeTypeLine(Card card)
     {

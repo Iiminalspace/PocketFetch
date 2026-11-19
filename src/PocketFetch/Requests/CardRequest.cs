@@ -3,5 +3,5 @@ namespace PocketFetch.Requests;
 public sealed record CardRequest(
     CardRequestKind Kind,
     string Name,
-    string? SetCode = null,
+    string? Set = null,
     int? Number = null);
